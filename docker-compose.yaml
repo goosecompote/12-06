@@ -1,0 +1,32 @@
+services:
+  master:
+    image: mysql:8.4
+    container_name: master
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      service_replica:
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./master.cnf:/etc/my.cnf
+      - ./01_master_create_user_replica.sql:/docker-entrypoint-initdb.d/01_master_create_user_replica.sql
+      - ./02_master_create_db.sql:/docker-entrypoint-initdb.d/02_master_create_db.sql
+  replica:
+    image: mysql:8.4
+    container_name: replica
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      service_replica:      
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./replica.cnf:/etc/my.cnf
+      - ./01_replica_create_replica.sql:/docker-entrypoint-initdb.d/01_replica_create_replica.sql
+
+networks:
+  service_replica:
+    name: service_replica
